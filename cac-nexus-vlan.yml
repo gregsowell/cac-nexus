@@ -1,0 +1,9 @@
+---
+- name: CAC vlan config
+  hosts: nexus9k3
+  gather_facts: false
+  vars:
+  tasks:
+  - name:
+    ansible.builtin.debug:
+      msg: parse/install configs

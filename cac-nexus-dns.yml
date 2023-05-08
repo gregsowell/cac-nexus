@@ -1,0 +1,36 @@
+---
+- name: update dns servers on nexus kit
+  hosts: nexus9k3
+  gather_facts: false
+  vars:
+#    dns_servers:
+#      - 8.8.8.8
+#      - 8.8.4.4 
+    save_now: false #reset this here or via extravars if this should be saved
+    config_repo: git@github.com:gregsowell/cac-nexus
+#    repo_tag: 2023-05-08-18-59
+
+  tasks:
+  - name: clone repo with config files
+    ansible.builtin.include_role: 
+      name: clone-repo
+
+  - name: parse config file for name servers
+    ansible.builtin.set_fact:
+      config_line: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_search('^.*ip name-server.*$', multiline=True) }}"
+
+  - name: parse config file for name servers
+    ansible.builtin.set_fact:
+#      dns_servers: "{{ lookup('file', inventory_hostname) | regex_search('^.*ip name-server.*$') | template('cac-extract-ip.j2') }}"
+#      dns_servers: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_search('^.*ip name-server.*$', multiline=True) | lookup('ansible.builtin.template', 'cac-extract-ip.j2') }}"
+      dns_servers: "{{ lookup('ansible.builtin.template', 'cac-extract-ip.j2') | trim}}"
+
+  - name: configure name servers
+    cisco.nxos.nxos_system:
+      name_servers: "{{ dns_servers }}"
+    register: result
+
+  - name: save when required
+    when: save_now == true and result.changed == true
+    cisco.nxos.nxos_config:
+      save_when: always

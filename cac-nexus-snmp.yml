@@ -1,0 +1,113 @@
+---
+- name: update snmp settings on nexus kit
+  hosts: nexus9k2
+  gather_facts: false
+  vars:
+#    parse_file: cac-nexus-nexus9k2.txt
+    snmp_config:
+      communities:
+        - community: public
+          group: network-operator
+        - community: public2
+          group: network-operator
+
+
+    save_now: false #reset this here or via extravars if this should be saved
+
+  tasks:
+  - name: specify parse file a little crudely
+    ansible.builtin.set_fact:
+      parse_file: "{{ inventory_hostname }}"
+
+  ### BLOCK START ###
+  - name: block if a parse file is specified
+    when: parse_file is defined
+    block: 
+    - name: Parse config
+      cisco.nxos.nxos_snmp_server:
+        running_config: "{{ lookup('file', parse_file) }}"
+        state: parsed
+      register: parsed
+
+#    - name: debug
+#      ansible.builtin.debug:
+#        var: parsed
+
+    - name: Replace snmp config with the provided.  Not merge, but replace
+      cisco.nxos.nxos_snmp_server:
+        config: "{{ parsed.parsed }}"
+        state: replaced
+      register: result
+
+  ### BLOCK STOP ###
+
+  ### BLOCK START ###
+  - name: block if a parse file is not present
+    when: parse_file is not defined
+    block: 
+    - name: Replace snmp-server configurations of listed snmp-server with provided configurations
+      cisco.nxos.nxos_snmp_server:
+        config:
+          # aaa_user:
+          #   cache_timeout: 36000
+          # communities:
+          #   - community: public
+          #     group: network-operator
+          #   - community: secret
+          #     group: network-operator
+          # contact: nxosswitchadmin2@localhost
+          # location: serverroom-2
+          # traps:
+          #   aaa:
+          #     server_state_change: True
+          # hosts:
+          #   - host: 192.0.2.1
+          #     traps: True
+          #     version: '1'
+          #     community: public
+          #   - host: 192.0.2.1
+          #     source_interface: Ethernet1/1
+          #   - host: 192.0.3.2
+          #     informs: True
+          #     version: '3'
+          #     auth: NMS
+          # users:
+          #   auth:
+          #     - user: admin
+          #       group: network-admin
+          #       authentication:
+          #         algorithm: md5
+          #         password: "0xcbde46b02c46e0bcd3ac5af6a8b13da9"
+          #         localized_key: True
+          #         priv:
+          #           privacy_password: "0xcbde46b02c46e0bcd3ac5af6a8b13da9"
+
+          #     - user: snmp_user_1
+          #       group: network-operator
+          #       authentication:
+          #         algorithm: md5
+          #         password: '0x5632724fb8ac3699296af26281e1d0f1'
+          #         localized_key: True
+
+          #     - user: snmp_user_2
+          #       group: network-operator
+          #       authentication:
+          #         algorithm: md5
+          #         password: '0x5632724fb8ac3699296af26281e1d0f1'
+          #         localized_key: True
+          #         priv:
+          #           privacy_password: '0x5632724fb8ac3699296af26281e1d0f1'
+          #           aes_128: True
+            # use_acls:
+            #   - user: snmp_user_1
+            #     ipv4: acl1
+            #     ipv6: acl2
+        state: replaced
+      register: result
+
+  ### BLOCK STOP ###
+
+  - name: save when required
+    when: save_now == true and result.changed == true
+    cisco.nxos.nxos_config:
+      save_when: always

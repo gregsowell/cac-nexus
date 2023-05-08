@@ -1,0 +1,4 @@
+---
+backup_repo: git@github.com:gregsowell/net_backups
+repo_tag: ""
+# config_repo: somepath

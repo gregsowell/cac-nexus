@@ -1,0 +1,50 @@
+---
+# this and the following task add a private ssh key to the execution environment so it can connect to git
+  - name: create .ssh folder
+    become: true
+    run_once: true
+    delegate_to: localhost
+    ansible.builtin.file:
+      path: /root/.ssh
+      state: directory
+      mode: '0777'
+
+  - name: create the ssh key file based on the supplied cred
+    become: true
+    run_once: true
+    delegate_to: localhost
+    ansible.builtin.copy:
+      dest: ~/.ssh/id_rsa
+      content: "{{ cert_key }}"
+      mode: '0600'
+#    no_log: true
+
+#  - name: create the backup dir
+#    become: true
+#    run_once: true
+#    delegate_to: localhost
+#    ansible.builtin.file:
+#      path: "{{ backup_dir }}"
+#      state: directory
+#      mode: '0777'
+
+  - name: clone the repo with tags
+    when: repo_tag is defined and repo_tag != ""
+    become: true
+    run_once: true
+    delegate_to: localhost
+    #git clone --depth 1 --branch 2023-05-04-18-51 git@github.com:gregsowell/net_backups
+    ansible.builtin.shell: "git config --global core.sshCommand 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'; mkdir /tmp/working; git clone --depth 1 --branch {{ repo_tag }} {{ backup_repo }} /tmp/working; cp /tmp/working/* {{ playbook_dir }}"
+    args:
+      chdir: "{{ playbook_dir }}"
+
+  - name: clone the repo without tags
+    when: repo_tag | default("") == "" and config_repo is defined
+    become: true
+    run_once: true
+    delegate_to: localhost
+#    ansible.builtin.shell: "git config --global core.sshCommand 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'; git clone {{ config_repo }} ."
+#    ansible.builtin.shell: "git config --global core.sshCommand 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'; git clone {{ config_repo }}"
+    ansible.builtin.shell: "git config --global core.sshCommand 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'; mkdir /tmp/working; git clone {{ config_repo }} /tmp/working; cp /tmp/working/* {{ playbook_dir }}"
+    args:
+      chdir: "{{ playbook_dir }}"

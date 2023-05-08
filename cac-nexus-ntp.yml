@@ -1,0 +1,67 @@
+---
+- name: update NTP servers on nexus kit
+  hosts: nexus9k3
+  gather_facts: false
+  vars:
+#    parse_file: cac-nexus-nexus9k2.txt
+
+    ntp_servers:
+      - server: 1.1.1.1
+        key_id: 1
+        use_vrf: management
+      - server: 2.2.2.2
+        key_id: 2
+        use_vrf: management
+    save_now: false #reset this here or via extravars if this should be saved
+    config_repo: git@github.com:gregsowell/cac-nexus
+#    repo_tag: 2023-05-08-18-59
+
+  tasks:
+  - name: clone repo with config files
+    ansible.builtin.include_role: 
+      name: clone-repo
+
+  - name: create the parse file variable manually
+    ansible.builtin.set_fact:
+      parse_file: "{{ inventory_hostname }}"
+
+  ### BLOCK START ###
+  - name: block if a parse file is specified
+    when: parse_file is defined
+    block: 
+    - name: Parse config
+      cisco.nxos.nxos_ntp_global:
+        running_config: "{{ lookup('file', parse_file) }}"
+        state: parsed
+      register: parsed
+
+#    - name: debug
+#      ansible.builtin.debug:
+#        var: parsed
+
+    - name: Replace NTP config with the provided.  Not merge, but replace
+      cisco.nxos.nxos_ntp_global:
+        config: "{{ parsed.parsed }}"
+        state: replaced
+      register: result
+
+  ### BLOCK STOP ###
+
+  ### BLOCK START ###
+  - name: block if a parse file is not present
+    when: parse_file is not defined
+    block: 
+    - name: Replace NTP config with the provided.  Not merge, but replace
+      cisco.nxos.nxos_ntp_global:
+        config:
+          logging: True
+          servers: "{{ ntp_servers }}"
+        state: replaced
+      register: result
+
+  ### BLOCK STOP ###
+
+  - name: save when required
+    when: save_now == true and result.changed == true
+    cisco.nxos.nxos_config:
+      save_when: always

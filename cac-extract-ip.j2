@@ -1,0 +1,9 @@
+{% set ip_list = [] %}
+{% for word in config_line.split() %}
+  {% if not word.startswith('ip') %}
+    {% if word | ipaddr %}
+      {% set _ = ip_list.append(word) %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+{{ ip_list }}
