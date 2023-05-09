@@ -13,7 +13,7 @@ no password strength-check
 username admin password 5 $5$TRD2jXd1$tMpzbV2Bkc/lFB8nIMno5AaYoJPrECch4U/rDoJEct
 3  role network-admin
 ip domain-lookup
-ip name-server 8.8.4.4 4.4.4.4
+ip name-server 8.8.4.4 5.5.5.5
 ip access-list test
   10 permit ip 1.1.1.1/32 2.2.2.2/32
   15 permit ip 1.1.1.2/32 2.2.2.3/32
