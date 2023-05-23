@@ -3,15 +3,14 @@
   hosts: nexus9k3
   gather_facts: false
   vars:
-#    parse_file: cac-nexus-nexus9k2.txt
-
     save_now: false #reset this here or via extravars if this should be saved
+    config_repo: git@github.com:gregsowell/cac-nexus
 
   tasks:
   - name: clone repo with config files
     ansible.builtin.include_role: 
       name: clone-repo
-      
+
   - name: create the parse file variable manually
     ansible.builtin.set_fact:
 #      parse_file: "{{ inventory_hostname }}-acl"
@@ -19,7 +18,9 @@
 #      just_acls: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_search('ip access-list +[^\n]+', multiline=True) }}"
 #      just_acls: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_search('ip\\s+access-list\\s+(\\S+)\\s+(.*)', multiline=True) }}"
 #      just_acls: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_search('ip\\s+access-list\\s+(\\S+)\\s+(.*)') }}"
-#      just_acls: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_search('ip access-list.*(?:\\n {2}\\d+.*)+') }}"
+####      just_acls: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_search('ip access-list.*(?:\\n {2}\\d+.*)+') }}"
+#      just_acls: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_findall('ip access-list\\s+\\S+(?:[\\s\\S](?!ip access-list))*', multiline=True) }}"
+#      just_acls: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_findall('ip access-list\\s+\\S+(?:[\\s\\S](?!ip access-list\\s+\\S+|\\Z))*', multiline=True) }}"
       just_acls: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_findall('ip access-list.*|\\n {2}\\d+.*', multiline=True) }}"
 
   ### BLOCK START ###
@@ -29,7 +30,6 @@
     - name: Parse given config to structured data
       cisco.nxos.nxos_acls:
 #        running_config: "{{ lookup('file', parse_file) }}"
-#        running_config: "{{ just_acls }}"
         running_config: "{{ just_acls | join(',') }}"
   #      running_config: |
   #        ip access-list ACL1v4
@@ -43,7 +43,7 @@
 #      ansible.builtin.debug:
 #        var: parsed
 
-    - name: Replace NTP config with the provided.  Not merge, but replace
+    - name: Replace ACL config with the provided.  Not merge, but replace
       cisco.nxos.nxos_acls:
         config: "{{ parsed.parsed }}"
         state: replaced
