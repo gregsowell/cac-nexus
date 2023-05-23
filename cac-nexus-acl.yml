@@ -15,7 +15,8 @@
 #      just_acls: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_search('ip access-list +[^\n]+', multiline=True) }}"
 #      just_acls: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_search('ip\\s+access-list\\s+(\\S+)\\s+(.*)', multiline=True) }}"
 #      just_acls: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_search('ip\\s+access-list\\s+(\\S+)\\s+(.*)') }}"
-      just_acls: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_search('ip access-list.*(?:\\n {2}\\d+.*)+') }}"
+#      just_acls: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_search('ip access-list.*(?:\\n {2}\\d+.*)+') }}"
+      just_acls: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_findall('ip access-list.*|\\n {2}\\d+.*', multiline=True) }}"
 
   ### BLOCK START ###
   - name: block if a parse file is specified
@@ -24,7 +25,8 @@
     - name: Parse given config to structured data
       cisco.nxos.nxos_acls:
 #        running_config: "{{ lookup('file', parse_file) }}"
-        running_config: "{{ just_acls }}"
+#        running_config: "{{ just_acls }}"
+        running_config: "{{ just_acls | join(',') }}"
   #      running_config: |
   #        ip access-list ACL1v4
   #          50 deny tcp any lt 55 192.0.2.64 0.0.0.255 ack fin
