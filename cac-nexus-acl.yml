@@ -21,7 +21,7 @@
 ####      just_acls: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_search('ip access-list.*(?:\\n {2}\\d+.*)+') }}"
 #      just_acls: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_findall('ip access-list\\s+\\S+(?:[\\s\\S](?!ip access-list))*', multiline=True) }}"
 #      just_acls: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_findall('ip access-list\\s+\\S+(?:[\\s\\S](?!ip access-list\\s+\\S+|\\Z))*', multiline=True) }}"
-      just_acls: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_findall('ip access-list.*|\\n {2}\\d+.*', multiline=True) }}"
+      just_acls: "{{ lookup('ansible.builtin.file', inventory_hostname) | regex_findall('ip access-list.*|\\n {1,2}\\d{2,3}.*', multiline=True) }}"
 
   ### BLOCK START ###
   - name: block if a parse file is specified
