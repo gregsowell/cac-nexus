@@ -8,6 +8,10 @@
     save_now: false #reset this here or via extravars if this should be saved
 
   tasks:
+  - name: clone repo with config files
+    ansible.builtin.include_role: 
+      name: clone-repo
+      
   - name: create the parse file variable manually
     ansible.builtin.set_fact:
 #      parse_file: "{{ inventory_hostname }}-acl"
