@@ -25,10 +25,8 @@ ip access-list test2
   20 permit ip 1.1.1.3/32 2.2.2.4/32
   22 permit ip 1.2.3.4/32 4.3.3.1/32
 copp profile strict
-snmp-server user admin auth md5 0x71c4f94f478d5816834c2d05dfa95349 priv 0x71c4f9
-4f478d5816834c2d05dfa95349 localizedkey engineID 128:0:0:9:3:0:80:86:148:30:37
-snmp-server user admin auth md5 0xe1ec35f88fd8bc0afde407f099056a25 priv 0xe1ec35
-f88fd8bc0afde407f099056a25 localizedkey engineID 128:0:0:9:3:0:80:86:148:39:176
+snmp-server user admin auth md5 0x71c4f94f478d5816834c2d05dfa95349 priv 0x71c4f94f478d5816834c2d05dfa95349 localizedkey engineID 128:0:0:9:3:0:80:86:148:30:37
+snmp-server user admin auth md5 0xe1ec35f88fd8bc0afde407f099056a25 priv 0xe1ec35f88fd8bc0afde407f099056a25 localizedkey engineID 128:0:0:9:3:0:80:86:148:39:176
 rmon event 1 description FATAL(1) owner PMON@FATAL
 rmon event 2 description CRITICAL(2) owner PMON@CRITICAL
 rmon event 3 description ERROR(3) owner PMON@ERROR
