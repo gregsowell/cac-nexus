@@ -1,4 +1,3 @@
-version 9.2(4) Bios:version
 hostname nexus9k3
 vdc nexus9k3 id 1
   limit-resource vlan minimum 16 maximum 4094
@@ -13,7 +12,7 @@ no password strength-check
 username admin password 5 $5$TRD2jXd1$tMpzbV2Bkc/lFB8nIMno5AaYoJPrECch4U/rDoJEct
 3  role network-admin
 ip domain-lookup
-ip name-server 8.8.4.4 5.5.5.5
+ip name-server 8.8.8.8 5.5.5.5
 ip access-list test
   10 permit ip 1.1.1.1/32 2.2.2.2/32
   15 permit ip 1.1.1.2/32 2.2.2.3/32
@@ -25,21 +24,21 @@ ip access-list test2
   20 permit ip 1.1.1.3/32 2.2.2.4/32
   22 permit ip 1.2.3.4/32 4.3.3.1/32
 copp profile strict
-snmp-server user admin auth md5 0x71c4f94f478d5816834c2d05dfa95349 priv 0x71c4f94f478d5816834c2d05dfa95349 localizedkey engineID 128:0:0:9:3:0:80:86:148:30:37
-snmp-server user admin auth md5 0xe1ec35f88fd8bc0afde407f099056a25 priv 0xe1ec35f88fd8bc0afde407f099056a25 localizedkey engineID 128:0:0:9:3:0:80:86:148:39:176
+snmp-server user admin auth md5 0xe2bb3e2405ce601c5c3993262270ace5 priv 0xe2bb3e2405ce601c5c3993262270ace5 localizedkey engineID 128:0:0:9:3:0:80:86:135:240:25
 rmon event 1 description FATAL(1) owner PMON@FATAL
 rmon event 2 description CRITICAL(2) owner PMON@CRITICAL
 rmon event 3 description ERROR(3) owner PMON@ERROR
 rmon event 4 description WARNING(4) owner PMON@WARNING
 rmon event 5 description INFORMATION(5) owner PMON@INFO
-ntp server 1.1.1.1 prefer use-vrf default
-ntp server 2.2.2.3 use-vrf default
 
-ip route 0.0.0.0/0 10.1.12.1
-ip route 0.0.0.0/0 10.1.12.1 vrf management
+ip route 0.0.0.0/0 10.0.50.1
+ip route 0.0.0.0/0 10.0.50.1 vrf management
 vlan 1
 
+vrf context man
+  ip route 0.0.0.0/0 10.0.50.1
 vrf context management
+  ip route 0.0.0.0/0 10.0.50.1
 
 interface Ethernet1/1
 
@@ -50,8 +49,6 @@ interface Ethernet1/3
 interface Ethernet1/4
 
 interface Ethernet1/5
-  switchport mode trunk
-  switchport trunk allowed vlan 666
 
 interface Ethernet1/6
 
@@ -301,7 +298,7 @@ interface Ethernet1/128
 
 interface mgmt0
   vrf member management
-  ip address 10.1.12.44/24
+  ip address 10.0.50.29/24
 line console
 line vty
 boot nxos bootflash:/nxos.9.2.4.bin
