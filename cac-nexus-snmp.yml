@@ -1,6 +1,6 @@
 ---
 - name: update snmp settings on nexus kit
-  hosts: nexus9k2
+  hosts: nexus9k3
   gather_facts: false
   vars:
 #    parse_file: cac-nexus-nexus9k2.txt
